@@ -1,0 +1,80 @@
+# Importing the Dataset
+import pandas as pd
+
+# Load the dataset
+sms_data = pd.read_csv('sms_dataset/SMSData.csv', sep='\t', names=["category", "text"])
+
+# Data Cleaning and Preprocessing
+import re
+import nltk
+nltk.download('stopwords')
+
+from nltk.corpus import stopwords
+from nltk.stem.porter import PorterStemmer
+
+# Initialize stemmer
+stemmer = PorterStemmer()
+
+# List to store cleaned text
+cleaned_texts = []
+
+# Loop through each message in the dataset
+for i in range(0, len(sms_data)):
+    # Remove non-alphabetic characters
+    cleaned_message = re.sub('[^a-zA-Z]', ' ', sms_data['text'][i])
+    # Convert to lowercase
+    cleaned_message = cleaned_message.lower()
+    # Split into words
+    cleaned_message = cleaned_message.split()
+    
+    # Remove stopwords and apply stemming
+    cleaned_message = [stemmer.stem(word) for word in cleaned_message if not word in stopwords.words('english')]
+    # Join words back into a sentence
+    cleaned_message = ' '.join(cleaned_message)
+    # Add to the list of cleaned texts
+    cleaned_texts.append(cleaned_message)
+
+# Creating the Bag of Words (BoW) Model
+from sklearn.feature_extraction.text import CountVectorizer
+
+# Initialize CountVectorizer with a limit of 2500 features
+vectorizer = CountVectorizer(max_features=2500)
+# Transform the cleaned texts into a BoW matrix
+X = vectorizer.fit_transform(cleaned_texts).toarray()
+
+# Preparing the Target Variable
+# Convert category labels into binary values (spam = 1, ham = 0)
+y = pd.get_dummies(sms_data['category'])
+y = y.iloc[:, 1].values
+
+# Train-Test Split
+from sklearn.model_selection import train_test_split
+
+# Split the data into training and testing sets (80% train, 20% test)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.20, random_state=42)
+
+# Training the Naive Bayes Classifier
+from sklearn.naive_bayes import MultinomialNB
+
+# Initialize and train the Naive Bayes model
+spam_classifier = MultinomialNB()
+spam_classifier.fit(X_train, y_train)
+
+# Making Predictions
+# Predict the labels for the test set
+y_pred = spam_classifier.predict(X_test)
+
+# Evaluation (Not shown in the original code)
+from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
+
+# Calculate accuracy
+accuracy = accuracy_score(y_test, y_pred)
+print("Accuracy:", accuracy)
+
+# Confusion matrix
+conf_matrix = confusion_matrix(y_test, y_pred)
+print("Confusion Matrix:\n", conf_matrix)
+
+# Classification report
+class_report = classification_report(y_test, y_pred)
+print("Classification Report:\n", class_report)
