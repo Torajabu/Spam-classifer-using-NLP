@@ -1,6 +1,9 @@
 # Spam-classifer-using-NLP
 Bag of Words (BoW), Naive Bayes classifier.
 
+![Spam Classifier Screenshot](https://github.com/Torajabu/Spam-classifer-using-NLP/blob/main/Screenshot%202025-03-08%20145902.png?raw=true)
+
+
 # SMS Spam Detection using Naive Bayes Classifier
 
 This project focuses on detecting spam messages in SMS data using Natural Language Processing (NLP) and a Naive Bayes classifier. The dataset used is the **SMSSpamCollection**, which contains labeled SMS messages as either "ham" (legitimate) or "spam". The project involves:
